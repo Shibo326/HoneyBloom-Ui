@@ -1,0 +1,18 @@
+{
+  "title": "HoneyBloom Ice Cream | A Little Scoop of Sunshine",
+  "description": "Discover HoneyBloom Ice Cream, a floral small-batch ice cream with honey, hibiscus, and marigold—coming to Western Bicutan in January 2027.",
+  "language": "en",
+  "robots": {
+    "index": true
+  },
+  "icons": {
+    "icon": "/assets/honeybloom-logo.png"
+  },
+  "openGraph": {
+    "image": "/assets/honeybloom-logo.png"
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
