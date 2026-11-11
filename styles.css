@@ -29,7 +29,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 90px; }
-body { margin: 0; overflow-x: hidden; background: var(--cream); color: var(--cocoa); font-family: var(--body); line-height: 1.65; }
+body { margin: 0; overflow-x: hidden; background: var(--cream); color: var(--cocoa); font-family: var(--body); line-height: 1.65; animation: page-enter .4s ease both; }
 img { display: block; max-width: 100%; }
 a { color: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -739,29 +739,22 @@ h2 em, h1 em { color: var(--pink); font-style: normal; }
   user-select: none;
 }
 .gallery-track-wrap.dragging { cursor: grabbing; }
-.gallery-track-wrap::before,
 .gallery-track-wrap::after {
   content: "";
   position: absolute;
   top: 0;
+  right: 0;
   bottom: 0;
-  width: 80px;
+  width: 60px;
   z-index: 2;
   pointer-events: none;
-}
-.gallery-track-wrap::before {
-  left: 0;
-  background: linear-gradient(to right, var(--cream-deep), transparent);
-}
-.gallery-track-wrap::after {
-  right: 0;
   background: linear-gradient(to left, var(--cream-deep), transparent);
 }
 .gallery-track {
   display: flex;
   align-items: flex-end;
   gap: 16px;
-  padding: 12px 80px 32px;
+  padding: 12px 60px 32px 0;
   will-change: transform;
   transition: transform .55s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -893,8 +886,7 @@ h2 em, h1 em { color: var(--pink); font-style: normal; }
   .gallery-slide--wide { flex: 0 0 340px; }
   .gallery-card { height: 300px; }
   .gallery-card--tall { height: 380px; }
-  .gallery-track { padding: 12px 32px 28px; gap: 12px; }
-  .gallery-track-wrap::before,
+  .gallery-track { padding: 12px 32px 28px 0; gap: 12px; }
   .gallery-track-wrap::after { width: 32px; }
 }
 @media (max-width: 499px) {
@@ -975,4 +967,3 @@ h2 em, h1 em { color: var(--pink); font-style: normal; }
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-body { animation: page-enter .4s ease both; }

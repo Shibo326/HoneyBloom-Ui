@@ -345,20 +345,17 @@ function initializeGallery() {
   });
 
   function getSlideOffset(index) {
-    const slide = slides[index];
-    if (!slide) return 0;
-    const trackRect = track.getBoundingClientRect();
-    const slideRect = slide.getBoundingClientRect();
-    const wrapRect = wrap.getBoundingClientRect();
-    const currentLeft = slideRect.left - trackRect.left + currentTranslate;
-    const targetOffset = currentLeft - (wrapRect.width / 2 - slide.offsetWidth / 2);
-    return currentTranslate - targetOffset;
+    // Calculate translateX needed to position slide[index] at the left edge
+    let offset = 0;
+    for (let i = 0; i < index; i++) {
+      offset += slides[i].offsetWidth + 16; // 16 = gap
+    }
+    return -offset;
   }
 
   function goTo(index) {
     currentIndex = Math.max(0, Math.min(index, total - 1));
-    const offset = getSlideOffset(currentIndex);
-    currentTranslate = offset;
+    currentTranslate = getSlideOffset(currentIndex);
     track.style.transform = `translateX(${currentTranslate}px)`;
     track.classList.remove("no-transition");
 
@@ -462,8 +459,8 @@ function initializeGallery() {
     if (e.key === "ArrowRight" && lightbox && lightbox.classList.contains("active")) return;
   });
 
-  // init
-  goTo(0);
+  // init — wait for layout to settle
+  window.requestAnimationFrame(() => goTo(0));
 }
 
 populateBusinessDetails();
