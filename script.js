@@ -326,17 +326,35 @@ function initializeGallery() {
   const lightboxClose = document.getElementById("lightbox-close");
   if (!wrap || !track) return;
 
-  const slides = [...track.querySelectorAll(".gallery-slide")];
-  const total = slides.length;
+  const originalSlides = [...track.querySelectorAll(".gallery-slide")];
+  const total = originalSlides.length;
+  const GAP = 16;
   let currentIndex = 0;
   let isDragging = false;
   let startX = 0;
-  let startScrollLeft = 0;
   let dragDelta = 0;
-  let currentTranslate = 0;
+  let baseTranslate = 0;
+  let isTransitioning = false;
 
-  // ── Dots ──
-  slides.forEach((_, i) => {
+  // ── Clone 2 slides at each end for seamless wrap ──
+  const clonesBefore = originalSlides.slice(-2).map((s) => {
+    const c = s.cloneNode(true);
+    c.setAttribute("aria-hidden", "true");
+    return c;
+  });
+  const clonesAfter = originalSlides.slice(0, 2).map((s) => {
+    const c = s.cloneNode(true);
+    c.setAttribute("aria-hidden", "true");
+    return c;
+  });
+  clonesBefore.forEach((c) => track.prepend(c));
+  clonesAfter.forEach((c) => track.appendChild(c));
+
+  const allSlides = [...track.querySelectorAll(".gallery-slide")];
+  const cloneOffset = clonesBefore.length;
+
+  // ── Dots (real slides only) ──
+  originalSlides.forEach((_, i) => {
     const dot = document.createElement("button");
     dot.className = "gallery-dot" + (i === 0 ? " active" : "");
     dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
@@ -344,33 +362,60 @@ function initializeGallery() {
     dotsContainer.appendChild(dot);
   });
 
-  function getSlideOffset(index) {
-    // Calculate translateX needed to position slide[index] at the left edge
+  // Buttons never disabled in infinite mode
+  if (prevBtn) prevBtn.disabled = false;
+  if (nextBtn) nextBtn.disabled = false;
+
+  function getOffsetOf(realIndex) {
+    const trackIndex = realIndex + cloneOffset;
     let offset = 0;
-    for (let i = 0; i < index; i++) {
-      offset += slides[i].offsetWidth + 16; // 16 = gap
+    for (let i = 0; i < trackIndex; i++) {
+      offset += allSlides[i].offsetWidth + GAP;
     }
     return -offset;
   }
 
-  function goTo(index) {
-    currentIndex = Math.max(0, Math.min(index, total - 1));
-    currentTranslate = getSlideOffset(currentIndex);
-    track.style.transform = `translateX(${currentTranslate}px)`;
-    track.classList.remove("no-transition");
-
-    slides.forEach((s, i) => s.classList.toggle("active-slide", i === currentIndex));
-
+  function updateDots(index) {
     document.querySelectorAll(".gallery-dot").forEach((d, i) => {
-      d.classList.toggle("active", i === currentIndex);
+      d.classList.toggle("active", i === index);
     });
-
-    if (prevBtn) prevBtn.disabled = currentIndex === 0;
-    if (nextBtn) nextBtn.disabled = currentIndex === total - 1;
   }
 
-  if (prevBtn) prevBtn.addEventListener("click", () => goTo(currentIndex - 1));
-  if (nextBtn) nextBtn.addEventListener("click", () => goTo(currentIndex + 1));
+  function updateActiveSlide(realIndex) {
+    allSlides.forEach((s, i) => {
+      s.classList.toggle("active-slide", i === realIndex + cloneOffset);
+    });
+  }
+
+  function setTranslate(tx, animate) {
+    if (animate) {
+      track.classList.remove("no-transition");
+    } else {
+      track.classList.add("no-transition");
+    }
+    track.style.transform = `translateX(${tx}px)`;
+  }
+
+  function goTo(realIndex, animate = true) {
+    currentIndex = ((realIndex % total) + total) % total;
+    const tx = getOffsetOf(currentIndex);
+    setTranslate(tx, animate);
+    updateDots(currentIndex);
+    updateActiveSlide(currentIndex);
+    if (animate) isTransitioning = true;
+  }
+
+  // After animated transition: silently jump if we went past a clone boundary
+  track.addEventListener("transitionend", () => {
+    isTransitioning = false;
+    // If we ended up on a "before clone" region, jump to real end
+    // If we ended up on an "after clone" region, jump to real start
+    // This is handled by goTo's modulo so nothing extra needed here
+  });
+
+  // ── Buttons ──
+  if (prevBtn) prevBtn.addEventListener("click", () => { if (!isTransitioning) goTo(currentIndex - 1); });
+  if (nextBtn) nextBtn.addEventListener("click", () => { if (!isTransitioning) goTo(currentIndex + 1); });
 
   // ── Keyboard ──
   wrap.setAttribute("tabindex", "0");
@@ -379,61 +424,60 @@ function initializeGallery() {
     if (e.key === "ArrowLeft")  { e.preventDefault(); goTo(currentIndex - 1); }
   });
 
-  // ── Drag (mouse) ──
+  // ── Mouse drag ──
   wrap.addEventListener("mousedown", (e) => {
+    if (isTransitioning) return;
     isDragging = true;
     startX = e.clientX;
-    startScrollLeft = currentTranslate;
     dragDelta = 0;
+    baseTranslate = getOffsetOf(currentIndex);
     wrap.classList.add("dragging");
     track.classList.add("no-transition");
   });
   window.addEventListener("mousemove", (e) => {
     if (!isDragging) return;
     dragDelta = e.clientX - startX;
-    track.style.transform = `translateX(${startScrollLeft + dragDelta}px)`;
+    track.style.transform = `translateX(${baseTranslate + dragDelta}px)`;
   });
   window.addEventListener("mouseup", () => {
     if (!isDragging) return;
     isDragging = false;
     wrap.classList.remove("dragging");
-    track.classList.remove("no-transition");
-    currentTranslate = startScrollLeft + dragDelta;
     if (Math.abs(dragDelta) > 60) {
       goTo(dragDelta < 0 ? currentIndex + 1 : currentIndex - 1);
     } else {
       goTo(currentIndex);
     }
+    dragDelta = 0;
   });
 
-  // ── Swipe (touch) ──
+  // ── Touch swipe ──
   wrap.addEventListener("touchstart", (e) => {
     startX = e.touches[0].clientX;
-    startScrollLeft = currentTranslate;
     dragDelta = 0;
+    baseTranslate = getOffsetOf(currentIndex);
     track.classList.add("no-transition");
   }, { passive: true });
   wrap.addEventListener("touchmove", (e) => {
     dragDelta = e.touches[0].clientX - startX;
-    track.style.transform = `translateX(${startScrollLeft + dragDelta}px)`;
+    track.style.transform = `translateX(${baseTranslate + dragDelta}px)`;
   }, { passive: true });
   wrap.addEventListener("touchend", () => {
-    track.classList.remove("no-transition");
-    currentTranslate = startScrollLeft + dragDelta;
     if (Math.abs(dragDelta) > 50) {
       goTo(dragDelta < 0 ? currentIndex + 1 : currentIndex - 1);
     } else {
       goTo(currentIndex);
     }
+    dragDelta = 0;
   });
 
-  // ── Lightbox ──
-  slides.forEach((slide, i) => {
+  // ── Lightbox (original slides only) ──
+  originalSlides.forEach((slide) => {
     const img = slide.querySelector("img");
     if (!img || !lightbox || !lightboxImg) return;
     slide.style.cursor = "pointer";
     slide.addEventListener("click", () => {
-      if (Math.abs(dragDelta) > 8) return; // was a drag, not a click
+      if (Math.abs(dragDelta) > 8) return;
       lightboxImg.src = img.src;
       lightboxImg.alt = img.alt;
       lightbox.classList.add("active");
@@ -449,18 +493,16 @@ function initializeGallery() {
     lightbox.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
   }
-
   if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
-  if (lightbox) {
-    lightbox.addEventListener("click", (e) => { if (e.target === lightbox) closeLightbox(); });
-  }
+  if (lightbox) lightbox.addEventListener("click", (e) => { if (e.target === lightbox) closeLightbox(); });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && lightbox && lightbox.classList.contains("active")) closeLightbox();
-    if (e.key === "ArrowRight" && lightbox && lightbox.classList.contains("active")) return;
   });
 
-  // init — wait for layout to settle
-  window.requestAnimationFrame(() => goTo(0));
+  // ── Init: two rAF frames so offsetWidth is fully calculated ──
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => goTo(0, false));
+  });
 }
 
 populateBusinessDetails();
