@@ -1,8 +1,8 @@
 const honeyBloomConfig = {
   businessName: "HoneyBloom Ice Cream",
   openingDate: "January 1, 2027",
-  location: "Barangay Western Bicutan, Taguig City, Metro Manila",
-  price: 70,
+  location: "62-A Mangosteen, Arca South, Taguig City, Metro Manila",
+  price: 100,
   priceConfirmed: false,
   servingSize: "8 oz",
   hours: {
