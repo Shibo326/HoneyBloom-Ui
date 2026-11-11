@@ -3,7 +3,7 @@ const honeyBloomConfig = {
   openingDate: "January 1, 2027",
   location: "62-A Mangosteen, Arca South, Taguig City, Metro Manila",
   price: 100,
-  priceConfirmed: false,
+  priceConfirmed: true,
   servingSize: "8 oz",
   hours: {
     monday: "Closed",
