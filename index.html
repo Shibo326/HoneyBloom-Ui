@@ -307,39 +307,63 @@
         </div>
       </section>
 
-      <section class="section gallery-section" id="gallery">
-        <div class="container">
-          <div class="section-heading centered reveal">
+      <section class="gallery-section" id="gallery">
+        <div class="gallery-header container reveal">
+          <div>
             <p class="eyebrow">The look &amp; feel</p>
             <h2>Crafted with <em>love.</em></h2>
-            <p>Every cup is made in small batches — here's a little peek at what's coming your way.</p>
+            <p class="gallery-sub">Every cup is made in small batches — here's a little peek at what's coming your way.</p>
           </div>
-          <div class="gallery-grid">
-            <div class="gallery-item gallery-item--tall reveal">
-              <img src="/assets/gallery-stacked-cups.png" alt="Three HoneyBloom ice cream cups stacked elegantly" loading="lazy" />
-              <div class="gallery-overlay"><span>The Stack</span></div>
+          <div class="gallery-nav" aria-label="Gallery navigation">
+            <button class="gallery-btn" id="gallery-prev" aria-label="Previous">←</button>
+            <div class="gallery-dots" id="gallery-dots"></div>
+            <button class="gallery-btn" id="gallery-next" aria-label="Next">→</button>
+          </div>
+        </div>
+
+        <div class="gallery-track-wrap" id="gallery-track-wrap">
+          <div class="gallery-track" id="gallery-track">
+            <div class="gallery-slide">
+              <div class="gallery-card">
+                <img src="/assets/gallery-spoon-cup.png" alt="HoneyBloom cup with a spoonful of pink ice cream" loading="lazy" />
+                <div class="gallery-card-label"><span>First Scoop</span></div>
+              </div>
             </div>
-            <div class="gallery-item reveal">
-              <img src="/assets/gallery-ice-cream-bed.png" alt="HoneyBloom cup nestled in pink ice cream swirls" loading="lazy" />
-              <div class="gallery-overlay"><span>Pure Pink</span></div>
+            <div class="gallery-slide">
+              <div class="gallery-card gallery-card--tall">
+                <img src="/assets/gallery-stacked-cups.png" alt="Three HoneyBloom ice cream cups stacked elegantly" loading="lazy" />
+                <div class="gallery-card-label"><span>The Stack</span></div>
+              </div>
             </div>
-            <div class="gallery-item reveal">
-              <img src="/assets/gallery-spoon-cup.png" alt="HoneyBloom cup with a spoonful of pink ice cream" loading="lazy" />
-              <div class="gallery-overlay"><span>First Scoop</span></div>
+            <div class="gallery-slide">
+              <div class="gallery-card">
+                <img src="/assets/gallery-ice-cream-bed.png" alt="HoneyBloom cup nestled in pink ice cream swirls" loading="lazy" />
+                <div class="gallery-card-label"><span>Pure Pink</span></div>
+              </div>
             </div>
-            <div class="gallery-item gallery-item--wide reveal">
-              <img src="/assets/gallery-pattern-cups.png" alt="Repeating pattern of HoneyBloom ice cream cups" loading="lazy" />
-              <div class="gallery-overlay"><span>Full Bloom</span></div>
+            <div class="gallery-slide gallery-slide--wide">
+              <div class="gallery-card">
+                <img src="/assets/gallery-flowers-cup.png" alt="HoneyBloom cup with dried hibiscus and marigold flowers" loading="lazy" />
+                <div class="gallery-card-label"><span>Floral Roots</span></div>
+              </div>
             </div>
-            <div class="gallery-item reveal">
-              <img src="/assets/gallery-flowers-cup.png" alt="HoneyBloom cup with dried hibiscus and marigold flowers" loading="lazy" />
-              <div class="gallery-overlay"><span>Floral Roots</span></div>
+            <div class="gallery-slide">
+              <div class="gallery-card gallery-card--tall">
+                <img src="/assets/gallery-stack-tower.png" alt="Tower of multiple HoneyBloom ice cream cups" loading="lazy" />
+                <div class="gallery-card-label"><span>Sweet Tower</span></div>
+              </div>
             </div>
-            <div class="gallery-item reveal">
-              <img src="/assets/gallery-stack-tower.png" alt="Tower of multiple HoneyBloom ice cream cups" loading="lazy" />
-              <div class="gallery-overlay"><span>Sweet Tower</span></div>
+            <div class="gallery-slide gallery-slide--wide">
+              <div class="gallery-card">
+                <img src="/assets/gallery-pattern-cups.png" alt="Repeating pattern of HoneyBloom ice cream cups" loading="lazy" />
+                <div class="gallery-card-label"><span>Full Bloom</span></div>
+              </div>
             </div>
           </div>
+        </div>
+
+        <div class="gallery-drag-hint" aria-hidden="true">
+          <span>✦</span> drag or swipe to explore <span>✦</span>
         </div>
       </section>
 

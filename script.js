@@ -315,49 +315,155 @@ function initializeEasterEgg() {
   });
 }
 
-function initializeLightbox() {
+function initializeGallery() {
+  const wrap = document.getElementById("gallery-track-wrap");
+  const track = document.getElementById("gallery-track");
+  const prevBtn = document.getElementById("gallery-prev");
+  const nextBtn = document.getElementById("gallery-next");
+  const dotsContainer = document.getElementById("gallery-dots");
   const lightbox = document.getElementById("gallery-lightbox");
   const lightboxImg = document.getElementById("lightbox-img");
-  const closeBtn = document.getElementById("lightbox-close");
-  if (!lightbox || !lightboxImg || !closeBtn) return;
+  const lightboxClose = document.getElementById("lightbox-close");
+  if (!wrap || !track) return;
 
-  function openLightbox(src, alt) {
-    lightboxImg.src = src;
-    lightboxImg.alt = alt;
-    lightbox.classList.add("active");
-    lightbox.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-    closeBtn.focus();
+  const slides = [...track.querySelectorAll(".gallery-slide")];
+  const total = slides.length;
+  let currentIndex = 0;
+  let isDragging = false;
+  let startX = 0;
+  let startScrollLeft = 0;
+  let dragDelta = 0;
+  let currentTranslate = 0;
+
+  // ── Dots ──
+  slides.forEach((_, i) => {
+    const dot = document.createElement("button");
+    dot.className = "gallery-dot" + (i === 0 ? " active" : "");
+    dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
+    dot.addEventListener("click", () => goTo(i));
+    dotsContainer.appendChild(dot);
+  });
+
+  function getSlideOffset(index) {
+    const slide = slides[index];
+    if (!slide) return 0;
+    const trackRect = track.getBoundingClientRect();
+    const slideRect = slide.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+    const currentLeft = slideRect.left - trackRect.left + currentTranslate;
+    const targetOffset = currentLeft - (wrapRect.width / 2 - slide.offsetWidth / 2);
+    return currentTranslate - targetOffset;
   }
 
+  function goTo(index) {
+    currentIndex = Math.max(0, Math.min(index, total - 1));
+    const offset = getSlideOffset(currentIndex);
+    currentTranslate = offset;
+    track.style.transform = `translateX(${currentTranslate}px)`;
+    track.classList.remove("no-transition");
+
+    slides.forEach((s, i) => s.classList.toggle("active-slide", i === currentIndex));
+
+    document.querySelectorAll(".gallery-dot").forEach((d, i) => {
+      d.classList.toggle("active", i === currentIndex);
+    });
+
+    if (prevBtn) prevBtn.disabled = currentIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentIndex === total - 1;
+  }
+
+  if (prevBtn) prevBtn.addEventListener("click", () => goTo(currentIndex - 1));
+  if (nextBtn) nextBtn.addEventListener("click", () => goTo(currentIndex + 1));
+
+  // ── Keyboard ──
+  wrap.setAttribute("tabindex", "0");
+  wrap.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") { e.preventDefault(); goTo(currentIndex + 1); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); goTo(currentIndex - 1); }
+  });
+
+  // ── Drag (mouse) ──
+  wrap.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    startScrollLeft = currentTranslate;
+    dragDelta = 0;
+    wrap.classList.add("dragging");
+    track.classList.add("no-transition");
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    dragDelta = e.clientX - startX;
+    track.style.transform = `translateX(${startScrollLeft + dragDelta}px)`;
+  });
+  window.addEventListener("mouseup", () => {
+    if (!isDragging) return;
+    isDragging = false;
+    wrap.classList.remove("dragging");
+    track.classList.remove("no-transition");
+    currentTranslate = startScrollLeft + dragDelta;
+    if (Math.abs(dragDelta) > 60) {
+      goTo(dragDelta < 0 ? currentIndex + 1 : currentIndex - 1);
+    } else {
+      goTo(currentIndex);
+    }
+  });
+
+  // ── Swipe (touch) ──
+  wrap.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+    startScrollLeft = currentTranslate;
+    dragDelta = 0;
+    track.classList.add("no-transition");
+  }, { passive: true });
+  wrap.addEventListener("touchmove", (e) => {
+    dragDelta = e.touches[0].clientX - startX;
+    track.style.transform = `translateX(${startScrollLeft + dragDelta}px)`;
+  }, { passive: true });
+  wrap.addEventListener("touchend", () => {
+    track.classList.remove("no-transition");
+    currentTranslate = startScrollLeft + dragDelta;
+    if (Math.abs(dragDelta) > 50) {
+      goTo(dragDelta < 0 ? currentIndex + 1 : currentIndex - 1);
+    } else {
+      goTo(currentIndex);
+    }
+  });
+
+  // ── Lightbox ──
+  slides.forEach((slide, i) => {
+    const img = slide.querySelector("img");
+    if (!img || !lightbox || !lightboxImg) return;
+    slide.style.cursor = "pointer";
+    slide.addEventListener("click", () => {
+      if (Math.abs(dragDelta) > 8) return; // was a drag, not a click
+      lightboxImg.src = img.src;
+      lightboxImg.alt = img.alt;
+      lightbox.classList.add("active");
+      lightbox.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      if (lightboxClose) lightboxClose.focus();
+    });
+  });
+
   function closeLightbox() {
+    if (!lightbox) return;
     lightbox.classList.remove("active");
     lightbox.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
   }
 
-  document.querySelectorAll(".gallery-item").forEach((item) => {
-    const img = item.querySelector("img");
-    if (!img) return;
-    item.setAttribute("role", "button");
-    item.setAttribute("tabindex", "0");
-    item.setAttribute("aria-label", `View: ${img.alt}`);
-    item.addEventListener("click", () => openLightbox(img.src, img.alt));
-    item.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        openLightbox(img.src, img.alt);
-      }
-    });
+  if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
+  if (lightbox) {
+    lightbox.addEventListener("click", (e) => { if (e.target === lightbox) closeLightbox(); });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && lightbox && lightbox.classList.contains("active")) closeLightbox();
+    if (e.key === "ArrowRight" && lightbox && lightbox.classList.contains("active")) return;
   });
 
-  closeBtn.addEventListener("click", closeLightbox);
-  lightbox.addEventListener("click", (e) => {
-    if (e.target === lightbox) closeLightbox();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && lightbox.classList.contains("active")) closeLightbox();
-  });
+  // init
+  goTo(0);
 }
 
 populateBusinessDetails();
@@ -368,4 +474,4 @@ initializeBackToTop();
 initializeScrollFeedback();
 initializeHeroParallax();
 initializeEasterEgg();
-initializeLightbox();
+initializeGallery();
