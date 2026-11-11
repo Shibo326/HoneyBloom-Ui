@@ -39,6 +39,7 @@
           <a href="#home">Home</a>
           <a href="#flavor">Our Flavor</a>
           <a href="#story">Our Story</a>
+          <a href="#gallery">Gallery</a>
           <a href="#visit">Find Us</a>
           <a class="nav-cta" href="#visit">Visit Us <span aria-hidden="true">→</span></a>
         </nav>
@@ -306,6 +307,42 @@
         </div>
       </section>
 
+      <section class="section gallery-section" id="gallery">
+        <div class="container">
+          <div class="section-heading centered reveal">
+            <p class="eyebrow">The look &amp; feel</p>
+            <h2>Crafted with <em>love.</em></h2>
+            <p>Every cup is made in small batches — here's a little peek at what's coming your way.</p>
+          </div>
+          <div class="gallery-grid">
+            <div class="gallery-item gallery-item--tall reveal">
+              <img src="/assets/gallery-stacked-cups.png" alt="Three HoneyBloom ice cream cups stacked elegantly" loading="lazy" />
+              <div class="gallery-overlay"><span>The Stack</span></div>
+            </div>
+            <div class="gallery-item reveal">
+              <img src="/assets/gallery-ice-cream-bed.png" alt="HoneyBloom cup nestled in pink ice cream swirls" loading="lazy" />
+              <div class="gallery-overlay"><span>Pure Pink</span></div>
+            </div>
+            <div class="gallery-item reveal">
+              <img src="/assets/gallery-spoon-cup.png" alt="HoneyBloom cup with a spoonful of pink ice cream" loading="lazy" />
+              <div class="gallery-overlay"><span>First Scoop</span></div>
+            </div>
+            <div class="gallery-item gallery-item--wide reveal">
+              <img src="/assets/gallery-pattern-cups.png" alt="Repeating pattern of HoneyBloom ice cream cups" loading="lazy" />
+              <div class="gallery-overlay"><span>Full Bloom</span></div>
+            </div>
+            <div class="gallery-item reveal">
+              <img src="/assets/gallery-flowers-cup.png" alt="HoneyBloom cup with dried hibiscus and marigold flowers" loading="lazy" />
+              <div class="gallery-overlay"><span>Floral Roots</span></div>
+            </div>
+            <div class="gallery-item reveal">
+              <img src="/assets/gallery-stack-tower.png" alt="Tower of multiple HoneyBloom ice cream cups" loading="lazy" />
+              <div class="gallery-overlay"><span>Sweet Tower</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="section socials-section" id="socials">
         <div class="container">
           <div class="section-heading centered reveal">
@@ -349,6 +386,12 @@
     </footer>
 
     <button class="back-to-top" type="button" aria-label="Back to top">↑</button>
+
+    <!-- Lightbox -->
+    <div class="gallery-lightbox" id="gallery-lightbox" aria-hidden="true" role="dialog" aria-label="Image preview">
+      <button class="lightbox-close" id="lightbox-close" aria-label="Close preview">✕</button>
+      <img id="lightbox-img" src="" alt="" />
+    </div>
 
     <!-- Easter egg overlay -->
     <div class="egg-overlay" id="egg-overlay" aria-hidden="true">

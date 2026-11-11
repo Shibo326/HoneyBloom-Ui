@@ -315,6 +315,51 @@ function initializeEasterEgg() {
   });
 }
 
+function initializeLightbox() {
+  const lightbox = document.getElementById("gallery-lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+  const closeBtn = document.getElementById("lightbox-close");
+  if (!lightbox || !lightboxImg || !closeBtn) return;
+
+  function openLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt;
+    lightbox.classList.add("active");
+    lightbox.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    closeBtn.focus();
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove("active");
+    lightbox.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  document.querySelectorAll(".gallery-item").forEach((item) => {
+    const img = item.querySelector("img");
+    if (!img) return;
+    item.setAttribute("role", "button");
+    item.setAttribute("tabindex", "0");
+    item.setAttribute("aria-label", `View: ${img.alt}`);
+    item.addEventListener("click", () => openLightbox(img.src, img.alt));
+    item.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openLightbox(img.src, img.alt);
+      }
+    });
+  });
+
+  closeBtn.addEventListener("click", closeLightbox);
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && lightbox.classList.contains("active")) closeLightbox();
+  });
+}
+
 populateBusinessDetails();
 initializeMobileNavigation();
 initializeAccordion();
@@ -323,3 +368,4 @@ initializeBackToTop();
 initializeScrollFeedback();
 initializeHeroParallax();
 initializeEasterEgg();
+initializeLightbox();
